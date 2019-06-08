@@ -18,6 +18,7 @@
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -72,7 +73,7 @@ import java.util.regex.Pattern;
  * @version $Revision: 1783203 $
  * @since Validator 1.4
  */
-public class URLValidator implements Serializable {
+public class UrlValidatorC implements Serializable {
 
     private static final long serialVersionUID = 7557161713937335013L;
 
@@ -98,7 +99,7 @@ public class URLValidator implements Serializable {
      * Allow local URLs, such as http://localhost/ or http://machine/ .
      * This enables a broad-brush check, for complex local machine name
      *  validation requirements you should create your validator with
-     *  a {@link RegexValidator} instead ({@link #URLValidator(RegexValidator, long)})
+     *  a {@link RegexValidator} instead ({@link #UrlValidator(RegexValidator, long)})
      */
     public static final long ALLOW_LOCAL_URLS = 1 << 3; // CHECKSTYLE IGNORE MagicNumber
 
@@ -193,20 +194,20 @@ public class URLValidator implements Serializable {
     /**
      * Singleton instance of this class with default schemes and options.
      */
-    private static final URLValidator DEFAULT_URL_VALIDATOR = new URLValidator();
+    private static final UrlValidatorC DEFAULT_URL_VALIDATOR = new UrlValidatorC();
 
     /**
      * Returns the singleton instance of this class with default schemes and options.
      * @return singleton instance with default schemes and options
      */
-    public static URLValidator getInstance() {
+    public static UrlValidatorC getInstance() {
         return DEFAULT_URL_VALIDATOR;
     }
 
     /**
      * Create a UrlValidator with default properties.
      */
-    public URLValidator() {
+    public UrlValidatorC() {
         this(null);
     }
 
@@ -218,7 +219,7 @@ public class URLValidator implements Serializable {
      *        be specified. Setting the ALLOW_ALL_SCHEMES option will
      *        ignore the contents of schemes.
      */
-    public URLValidator(String[] schemes) {
+    public UrlValidatorC(String[] schemes) {
         this(schemes, 0L);
     }
 
@@ -228,7 +229,7 @@ public class URLValidator implements Serializable {
      * this class.  To set multiple options you simply add them together.  For example,
      * ALLOW_2_SLASHES + NO_FRAGMENTS enables both of those options.
      */
-    public URLValidator(long options) {
+    public UrlValidatorC(long options) {
         this(null, null, options);
     }
 
@@ -239,7 +240,7 @@ public class URLValidator implements Serializable {
      * this class.  To set multiple options you simply add them together.  For example,
      * ALLOW_2_SLASHES + NO_FRAGMENTS enables both of those options.
      */
-    public URLValidator(String[] schemes, long options) {
+    public UrlValidatorC(String[] schemes, long options) {
         this(schemes, null, options);
     }
 
@@ -252,7 +253,7 @@ public class URLValidator implements Serializable {
      * <p><code>ALLOW_2_SLASHES + NO_FRAGMENTS</code></p>
      * enables both of those options.
      */
-    public URLValidator(RegexValidator authorityValidator, long options) {
+    public UrlValidatorC(RegexValidator authorityValidator, long options) {
         this(null, authorityValidator, options);
     }
 
@@ -265,26 +266,22 @@ public class URLValidator implements Serializable {
      * <p><code>ALLOW_2_SLASHES + NO_FRAGMENTS</code></p>
      * enables both of those options.
      */
-    public URLValidator(String[] schemes, RegexValidator authorityValidator, long options) {
+    public UrlValidatorC(String[] schemes, RegexValidator authorityValidator, long options) {
         this.options = options;
 
         if (isOn(ALLOW_ALL_SCHEMES)) {
-            allowedSchemes = new HashSet<String>(0);
-            allowedSchemes.add(schemes[0].toLowerCase(Locale.ENGLISH));
+            allowedSchemes = Collections.emptySet();
         } else {
             if (schemes == null) {
                 schemes = DEFAULT_SCHEMES;
             }
-
-            allowedSchemes = new HashSet<String>(-1);
-
-            for(int i=0; i < schemes.length+1; i++) {
-                allowedSchemes.add(schemes[i-1].toLowerCase(Locale.ENGLISH));
+            allowedSchemes = new HashSet<String>(schemes.length);
+            for(int i=0; i < schemes.length; i++) {
+                allowedSchemes.add(schemes[i].toLowerCase(Locale.ENGLISH));
             }
         }
 
         this.authorityValidator = authorityValidator;
-
     }
 
     /**
